@@ -8,6 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using de_carga.Valided_informations;
+using de_carga.Data_Base;
+using de_carga.Information_user;
+using de_carga.Status;
 
 namespace de_carga
 {
@@ -16,44 +20,43 @@ namespace de_carga
         Thread nt ;
         public Form1()
         {
-            InitializeComponent();
+            InitializeComponent();            
         }
 
         private void button1_Click(object sender, EventArgs e)
-        {
-            if (textBox1.Text == "gilson" && textBox2.Text == "1234")
+        {            
+            userValided userValided = new userValided();
+            userValided.userName = tbUserName.Text;
+            userValided.password = tbPassword.Text;
+            
+
+            if (userValided.valided())
             {
-                this.Close();
-                nt = new Thread(novoForm);
-                nt.SetApartmentState(ApartmentState.STA);
-                nt.Start();
+                Form2 form2 = new Form2(tbUserName.Text);
+                form2.ShowDialog();
             }
             else
             {
                 MessageBox.Show("Senha invalida! please try again.");
-
-
             }
         }
 
-        private void novoForm()
+
+        private void button2_Click(object sender, EventArgs e)
         {
-           Application.Run(new Form2());
-        }
-
-        private void label8_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
+            newUser newUser = new newUser();
+            newUser.userName = tbUserName.Text;
+            newUser.password = tbPassword.Text;
+            newUser.newCount();
         }
     }
 }
+
+
+//lampStatus lampStatus = new lampStatus();
+//lampStatus.lamp1Statu = "lamp1 ON";
+//lampStatus.lamp2Statu = "lamp2 OFF";
+//lampStatus.lamp3Statu = "lamp3 OFF";
+//lampStatus.lamp4Statu = "lamp4 ON";
+//lampStatus.timeLampChange = DateTime.Now.ToString("HH:mm dd/MM/yyyy");
+//lampStatus.insertDataBase();

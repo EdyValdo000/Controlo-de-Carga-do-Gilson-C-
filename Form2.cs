@@ -11,6 +11,10 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 
+using de_carga.Status;
+using de_carga.Valided_informations;
+using System.Security.Cryptography;
+
 
 namespace de_carga
 {
@@ -22,10 +26,12 @@ namespace de_carga
         private StreamReader strReceber;
         private Int16 Porta;
         private String receber;
-        public Form2()
+        String userName;
+        public Form2(String UserName)
         {
-           
+            userName = UserName;
             InitializeComponent();
+
         }
 
         private void btCConectar_Click(object sender, EventArgs e)
@@ -51,6 +57,8 @@ namespace de_carga
                 LbMsgPorta.Text = "PORTA ABERTA";
                 LbMsgPorta.ForeColor = Color.Green;
 
+                timer1.Enabled = true;
+
             }
             
             catch(Exception)
@@ -66,6 +74,8 @@ namespace de_carga
         {
             try
             {
+                timer1.Enabled = false;
+
                 stwEnviar.Close();
                 strReceber.Close();
                 tcpCliente.Close();
@@ -211,7 +221,7 @@ namespace de_carga
             try
             {
                 stwEnviar.Write('7');
-                pbLed4.Image = de_carga.Properties.Resources.foto2;
+                
                 btLed4on.Enabled = false;
                 btLed4off.Enabled = true;
                 btLedoffall.Enabled = true;
@@ -230,7 +240,7 @@ namespace de_carga
             try
             {
                 stwEnviar.Write('8');
-                pbLed4.Image = de_carga.Properties.Resources.foto1;
+                
                 btLed4on.Enabled = true;
                 btLed4off.Enabled = false;
                 btLedonall.Enabled = true;
@@ -294,26 +304,6 @@ namespace de_carga
             }
         }
 
-        private void pbLed1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void LbMsgPorta_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void pbLed3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void groupBox2_Enter(object sender, EventArgs e)
-        {
-
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
             Form1 form1 = new Form1();
@@ -329,6 +319,12 @@ namespace de_carga
 
         private void button15_Click(object sender, EventArgs e)
         {
+            gateStatus gateStatus = new gateStatus();
+            gateStatus.userChange = userName;
+            gateStatus.actualStatu = "Portão aberto";
+            gateStatus.timeGateChange = DateTime.Now.ToString("HH:mm dd/MM/yyyy");
+            gateStatus.insertDataBase();
+
             try
             {
 
@@ -353,6 +349,11 @@ namespace de_carga
         {
             try
             {
+                gateStatus gateStatus = new gateStatus();
+                gateStatus.userChange = userName;
+                gateStatus.actualStatu = "Portão fechado";
+                gateStatus.timeGateChange = DateTime.Now.ToString("HH:mm dd/MM/yyyy");
+                gateStatus.insertDataBase();
 
                 stwEnviar.Write('b');
              
@@ -365,6 +366,110 @@ namespace de_carga
 
             }
             catch
+            {
+
+            }
+        }
+
+        private void tabControl3_Click(object sender, EventArgs e)
+        {
+            lampStatus lampStatus = new lampStatus();
+            lampStatus.loadTable(dgvLamp);
+
+            gateStatus gateStatus = new gateStatus();
+            gateStatus.loadTable(dgvGate);
+        }
+
+        bool flag1 = false, flag2 = false, flag3 = false, flag4 = false;
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            while (tcpCliente.Connected)
+            {
+                try
+                {
+                    lampStatus lampStatus = new lampStatus();
+                    gateStatus gateStatus = new gateStatus();
+
+                    receber = strReceber.ReadLine();
+                    string[] arduinoReturn = receber.Split('*');
+                    this.Invoke(new MethodInvoker(delegate () { lampStatus.lamp1Statu = arduinoReturn[1].ToString(); }));
+                    this.Invoke(new MethodInvoker(delegate () { lampStatus.lamp2Statu = arduinoReturn[2].ToString(); }));
+                    this.Invoke(new MethodInvoker(delegate () { lampStatus.lamp3Statu = arduinoReturn[3].ToString(); }));
+                    this.Invoke(new MethodInvoker(delegate () { lampStatus.lamp4Statu = arduinoReturn[4].ToString(); }));
+
+                    this.Invoke(new MethodInvoker(delegate () { gateStatus.timeGateChange = arduinoReturn[4].ToString(); }));
+
+                    this.Invoke(new MethodInvoker(delegate () {
+
+                      
+                        lampStatus.timeLampChange = DateTime.Now.ToString("HH:mm dd/MM/yyyy");
+                        gateStatus.timeGateChange = DateTime.Now.ToString("HH:mm dd/MM/yyyy");
+                        gateStatus.userChange = userName;
+
+
+                        if (lampStatus.lamp1Statu == "Lamp1 ON")
+                        {
+                            flag1 = true;
+                            pbLed4.Image = de_carga.Properties.Resources.foto2;
+                        }
+                        else if (lampStatus.lamp1Statu == "Lamp1 OFF")
+                        {
+                            flag1 = false;
+                            pbLed4.Image = de_carga.Properties.Resources.foto1;
+                        }
+
+                        if (lampStatus.lamp2Statu == "Lamp2 ON")
+                        {
+                            flag2 = true;
+                            pbLed4.Image = de_carga.Properties.Resources.foto2;
+                        }
+                        else if (lampStatus.lamp2Statu == "Lamp2 OFF")
+                        {
+                            flag2 = false;
+                            pbLed4.Image = de_carga.Properties.Resources.foto1;
+                        }
+
+                        if (lampStatus.lamp3Statu == "Lamp3 ON")
+                        {
+                            flag3 = true;
+                            pbLed4.Image = de_carga.Properties.Resources.foto2;
+                        }
+                        else if (lampStatus.lamp3Statu == "Lamp3 OFF")
+                        {
+                            flag3 = false;
+                            pbLed4.Image = de_carga.Properties.Resources.foto1;
+                        }
+
+                        if (lampStatus.lamp4Statu == "Lamp4 ON")
+                        {
+                            flag4 = true;
+                            pbLed4.Image = de_carga.Properties.Resources.foto2;
+                        }
+                        else if (lampStatus.lamp4Statu == "Lamp4 OFF")
+                        {
+                            flag4 = false;
+                            pbLed4.Image = de_carga.Properties.Resources.foto1;
+                        }
+
+                        lampStatus.insertDataBase();
+                        gateStatus.insertDataBase();
+                    }));
+                }
+                catch
+                {
+
+                }
+            }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                stwEnviar.Write('s');
+                stwEnviar.Flush();
+            }
+            catch (Exception)
             {
 
             }
