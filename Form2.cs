@@ -13,7 +13,7 @@ using System.Net.Sockets;
 
 using de_carga.Status;
 using de_carga.Valided_informations;
-using System.Security.Cryptography;
+
 
 
 namespace de_carga
@@ -26,10 +26,15 @@ namespace de_carga
         private StreamReader strReceber;
         private Int16 Porta;
         private String receber;
-        String userName;
-        public Form2(String UserName)
+        
+        userValided UserValided;
+
+        lampStatus lampStatus = new lampStatus();
+        gateStatus gateStatus = new gateStatus();
+
+        public Form2(userValided userValided)
         {
-            userName = UserName;
+            UserValided = userValided;
             InitializeComponent();
 
         }
@@ -319,8 +324,7 @@ namespace de_carga
 
         private void button15_Click(object sender, EventArgs e)
         {
-            gateStatus gateStatus = new gateStatus();
-            gateStatus.userChange = userName;
+            gateStatus.userChange = UserValided.userName;
             gateStatus.actualStatu = "Portão aberto";
             gateStatus.timeGateChange = DateTime.Now.ToString("HH:mm dd/MM/yyyy");
             gateStatus.insertDataBase();
@@ -350,7 +354,7 @@ namespace de_carga
             try
             {
                 gateStatus gateStatus = new gateStatus();
-                gateStatus.userChange = userName;
+                gateStatus.userChange = UserValided.userName;
                 gateStatus.actualStatu = "Portão fechado";
                 gateStatus.timeGateChange = DateTime.Now.ToString("HH:mm dd/MM/yyyy");
                 gateStatus.insertDataBase();
@@ -373,10 +377,9 @@ namespace de_carga
 
         private void tabControl3_Click(object sender, EventArgs e)
         {
-            lampStatus lampStatus = new lampStatus();
+
             lampStatus.loadTable(dgvLamp);
 
-            gateStatus gateStatus = new gateStatus();
             gateStatus.loadTable(dgvGate);
         }
 
@@ -387,8 +390,7 @@ namespace de_carga
             {
                 try
                 {
-                    lampStatus lampStatus = new lampStatus();
-                    gateStatus gateStatus = new gateStatus();
+                    
 
                     receber = strReceber.ReadLine();
                     string[] arduinoReturn = receber.Split('*');
@@ -404,51 +406,59 @@ namespace de_carga
                       
                         lampStatus.timeLampChange = DateTime.Now.ToString("HH:mm dd/MM/yyyy");
                         gateStatus.timeGateChange = DateTime.Now.ToString("HH:mm dd/MM/yyyy");
-                        gateStatus.userChange = userName;
+                        gateStatus.userChange = UserValided.userName;
 
 
                         if (lampStatus.lamp1Statu == "Lamp1 ON")
                         {
-                            flag1 = true;
-                            pbLed4.Image = de_carga.Properties.Resources.foto2;
+                            pbLed1.Image = de_carga.Properties.Resources.foto2;
+                            btLed1on.Enabled= false;
+                            btLed1off.Enabled = true;
                         }
                         else if (lampStatus.lamp1Statu == "Lamp1 OFF")
                         {
-                            flag1 = false;
-                            pbLed4.Image = de_carga.Properties.Resources.foto1;
+                            pbLed1.Image = de_carga.Properties.Resources.foto1;
+                            btLed1on.Enabled = true;
+                            btLed1off.Enabled = false;
                         }
 
                         if (lampStatus.lamp2Statu == "Lamp2 ON")
                         {
-                            flag2 = true;
-                            pbLed4.Image = de_carga.Properties.Resources.foto2;
+                            pbLed2.Image = de_carga.Properties.Resources.foto2;
+                            btLed2on.Enabled = false;
+                            btLed2off.Enabled = true;
                         }
                         else if (lampStatus.lamp2Statu == "Lamp2 OFF")
                         {
-                            flag2 = false;
-                            pbLed4.Image = de_carga.Properties.Resources.foto1;
+                            pbLed2.Image = de_carga.Properties.Resources.foto1;
+                            btLed2on.Enabled = true;
+                            btLed2off.Enabled = false;
                         }
 
                         if (lampStatus.lamp3Statu == "Lamp3 ON")
                         {
-                            flag3 = true;
-                            pbLed4.Image = de_carga.Properties.Resources.foto2;
+                            pbLed3.Image = de_carga.Properties.Resources.foto2;
+                            btLed3on.Enabled = false;
+                            btLed3off.Enabled = true;
                         }
                         else if (lampStatus.lamp3Statu == "Lamp3 OFF")
                         {
-                            flag3 = false;
-                            pbLed4.Image = de_carga.Properties.Resources.foto1;
+                            pbLed3.Image = de_carga.Properties.Resources.foto1;
+                            btLed3on.Enabled = true;
+                            btLed3off.Enabled = false;
                         }
 
                         if (lampStatus.lamp4Statu == "Lamp4 ON")
                         {
-                            flag4 = true;
                             pbLed4.Image = de_carga.Properties.Resources.foto2;
+                            btLed4on.Enabled = false;
+                            btLed4off.Enabled = true;
                         }
                         else if (lampStatus.lamp4Statu == "Lamp4 OFF")
                         {
-                            flag4 = false;
                             pbLed4.Image = de_carga.Properties.Resources.foto1;
+                            btLed4on.Enabled = true;
+                            btLed4off.Enabled = false;
                         }
 
                         lampStatus.insertDataBase();

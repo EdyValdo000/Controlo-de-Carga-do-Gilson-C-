@@ -17,7 +17,7 @@ namespace de_carga
 {
     public partial class Form1 : Form
     {
-        Thread nt ;
+        userValided userValided = new userValided();
         public Form1()
         {
             InitializeComponent();            
@@ -25,14 +25,13 @@ namespace de_carga
 
         private void button1_Click(object sender, EventArgs e)
         {            
-            userValided userValided = new userValided();
             userValided.userName = tbUserName.Text;
             userValided.password = tbPassword.Text;
             
 
             if (userValided.valided())
             {
-                Form2 form2 = new Form2(tbUserName.Text);
+                Form2 form2 = new Form2(userValided);
                 form2.ShowDialog();
             }
             else
@@ -51,12 +50,3 @@ namespace de_carga
         }
     }
 }
-
-
-//lampStatus lampStatus = new lampStatus();
-//lampStatus.lamp1Statu = "lamp1 ON";
-//lampStatus.lamp2Statu = "lamp2 OFF";
-//lampStatus.lamp3Statu = "lamp3 OFF";
-//lampStatus.lamp4Statu = "lamp4 ON";
-//lampStatus.timeLampChange = DateTime.Now.ToString("HH:mm dd/MM/yyyy");
-//lampStatus.insertDataBase();
